@@ -45,14 +45,16 @@ jobs:
           PYCODE
 
       - name: Commit and push if changed
+        shell: bash
         run: |
+          set -e
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
           if ! git diff --quiet README.md; then
             git add README.md
-            git commit -m "Update README.md from docs/index.md"
+            git commit -m "Sync README.md from docs/index.md"
             git push
-            echo "Changes pushed to repository."
+            echo "Changes have been committed and pushed."
           else
-            echo "No changes to commit."
+            echo "No changes detected. Nothing to commit."
