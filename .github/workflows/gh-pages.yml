@@ -46,11 +46,18 @@ jobs:
         run: mkdocs build
         working-directory: .
 
-      # ----- Deploy both sites -----
+      # ----- Combine both outputs -----
+      - name: Prepare deployment folder
+        run: |
+          mkdir public
+          mkdir -p public/datalineage
+          mkdir -p public/docs
+          cp -r datalineage/dist/* public/datalineage/
+          cp -r site/* public/docs/
+
+      # ----- Deploy both -----
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: |
-            datalineage/dist
-            docs/site
+          publish_dir: public
