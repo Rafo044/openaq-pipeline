@@ -2,7 +2,7 @@ name: Sync README.md from docs/index.md
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: write
@@ -18,28 +18,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Copy docs/index.md to README.md
         run: |
           python <<'PYCODE'
-          import os, re
+          import os
+          import re
 
           index = "docs/index.md"
           readme = "README.md"
 
           if not os.path.exists(index):
-              print("docs/index.md not found, skipping.")
+              print("⚠️  docs/index.md not found, skipping.")
               exit(0)
 
+          lines = []
           with open(index, "r", encoding="utf-8") as f:
-              content = f.read()
-
-          content_fixed = re.sub(r'\]\(\./images/', '](./docs/images/', content)
+              for line in f:
+                  # ./images və ya images ilə başlayan yolları ./docs/images ilə əvəz et
+                  line = re.sub(r'\]\((?:\.\/)?images/', '](./docs/images/', line)
+                  lines.append(line)
 
           with open(readme, "w", encoding="utf-8") as f:
-              f.write(content_fixed)
-
+              f.writelines(lines)
           print("README.md updated from docs/index.md")
           PYCODE
 
