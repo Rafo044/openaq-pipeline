@@ -1,4 +1,6 @@
 .PHONY: up down logs start stop main
+include .env
+export
 
 up:
 	docker compose up -d --build
@@ -18,19 +20,23 @@ stop:
 
 init:
 	sudo chmod +x init.sh
-	./init.sh
+	./script/init.sh
 
 main:
 	sudo mkdir -p logs
 	sudo chmod 777 logs/
 	docker exec -it parser python main.py
 
-activate_log:
+activate_process:
 	sudo chmod 777 acivate_log.sh
-	./acivate_log.sh
+	./script/acivate_process.sh
 
 ps:
 	docker compose ps
 
 run:
 	docker exec -it datalineage npm run dev
+
+test:
+	source "$(ENV_PATH)"/bin/activate.fish
+	pytest test_main.py
