@@ -2,16 +2,15 @@
 
 An end-to-end data pipeline for fetching, validating, and storing air quality data from the OpenAQ platform.
 
-![Pipeline Architecture](docs/images/pipeline.png)
+![Pipeline Architecture](./docs/images/pipeline.png)
 
 ## Overview
 
-This project provides a complete data pipeline that collects air quality measurements from the OpenAQ REST API, validates the data using Pydantic models, and stores it in a PostgreSQL database. The pipeline includes data lineage tracking and visualization capabilities.
+This project provides a complete data pipeline that collects air quality measurements from the OpenAQ REST API, validates the data using Pydantic models, and stores it in a PostgreSQL database. The pipeline includes data lineage tracking and visualization capabilities..
 
-<video width="640" height="360" controls>
-  <source src="./images/video.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video>
+<p align="center">
+  <img src="./images/video.gif" alt="Gemini Cli connect to MCP server" style="width:auto; height:auto;" />
+</p>
 
 ## Features
 
