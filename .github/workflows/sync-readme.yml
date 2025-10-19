@@ -25,20 +25,19 @@ jobs:
           python <<'PYCODE'
           import os, re
 
-          INDEX = "docs/index.md"
-          README = "README.md"
+          index = "docs/index.md"
+          readme = "README.md"
 
-          if not os.path.exists(INDEX):
-              print("docs/index.md not found. Exiting.")
+          if not os.path.exists(index):
+              print("docs/index.md not found, skipping.")
               exit(0)
 
-          with open(INDEX, "r", encoding="utf-8") as f:
+          with open(index, "r", encoding="utf-8") as f:
               content = f.read()
 
-          # Adjust image paths for GitHub rendering
           content_fixed = re.sub(r'\]\(\./images/', '](./docs/images/', content)
 
-          with open(README, "w", encoding="utf-8") as f:
+          with open(readme, "w", encoding="utf-8") as f:
               f.write(content_fixed)
 
           print("README.md updated from docs/index.md")
@@ -48,13 +47,15 @@ jobs:
         shell: bash
         run: |
           set -e
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-          if ! git diff --quiet README.md; then
+          CHANGED=$(git diff --name-only README.md)
+          if [ -n "$CHANGED" ]; then
             git add README.md
-            git commit -m "Sync README.md from docs/index.md"
+            git commit -m "Update README.md from docs/index.md"
             git push
-            echo "Changes have been committed and pushed."
+            echo "Changes committed and pushed."
           else
-            echo "No changes detected. Nothing to commit."
+            echo "No changes to commit."
+          fi
