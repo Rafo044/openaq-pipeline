@@ -1,6 +1,6 @@
-from loguru import logger
 import os
 from pathlib import Path
+from loguru import logger
 
 current_dir = Path(os.getcwd())
 

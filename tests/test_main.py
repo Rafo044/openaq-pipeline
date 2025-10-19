@@ -1,11 +1,9 @@
-from dotenv import load_dotenv
 from parser.response_openaq import get_response
-
-from parser.send_to_postgres import insert_dict_to_postgres
 from parser.transform import normalize_measurement
 from parser.validation_json import OpenAQResponse
 
 import pytest
+from dotenv import load_dotenv
 
 
 load_dotenv()
@@ -35,7 +33,7 @@ test_list = [
 def fetch_get_response(*args, **kwargs):
     response_json = get_response(*args, **kwargs)
     if response_json["results"] == []:
-        assert False, "No results found"
+        raise AssertionError("No results found")
     else:
         return response_json
 
@@ -48,10 +46,6 @@ def model_validate(response_json):
 def transformed_data(validated):
     normalized_data = normalize_measurement(validated["results"][0])
     return normalized_data
-
-
-def send_to_postgres():
-    insert_dict_to_postgres(pos)
 
 
 # ========================================================================================================

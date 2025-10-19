@@ -1,9 +1,10 @@
-from fastmcp import FastMCP
-from typing import Dict, List, Any
-from dotenv import load_dotenv
 import os
 import subprocess
 import shlex
+
+from fastmcp import FastMCP
+from dotenv import load_dotenv
+from typing import Any
 
 openaq = FastMCP("openaq")
 
@@ -15,7 +16,7 @@ load_dotenv()
 
 
 @openaq.tool
-def permission_check(permission: str) -> Dict[str, Any]:
+def permission_check(permission: str) -> dict[str, Any]:
     """
     Its main purpose is to check whether the
     PERMISSION section in the .env file is True or False:
@@ -84,8 +85,8 @@ def postgres_backup_check_permissions():
 
 
 def execute_command(
-    command: str, permission_result: Dict[str, Any], working_directory: str = None
-) -> Dict[str, Any]:
+    command: str, permission_result: dict[str, Any], working_directory: str = None
+) -> dict[str, Any]:
     """
     Executes a shell command and returns the output.
     AI can use this to run commands like 'make start', 'python script.py', etc.

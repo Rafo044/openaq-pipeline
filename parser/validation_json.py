@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List
 
 
 class OpenAQResponse(BaseModel):
@@ -60,4 +59,4 @@ class OpenAQResponse(BaseModel):
         found: int
 
     meta: "OpenAQResponse.Meta"
-    results: List["OpenAQResponse.Result"]
+    results: list["OpenAQResponse.Result"]

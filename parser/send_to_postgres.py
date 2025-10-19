@@ -1,8 +1,9 @@
-import psycopg2
 import os
+from pathlib import Path
+import psycopg2
 from loguru import logger
 from psycopg2 import sql
-from pathlib import Path
+
 
 current_dir = Path(os.getcwd())
 log_dir = current_dir / "logs"

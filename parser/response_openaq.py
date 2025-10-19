@@ -1,9 +1,10 @@
+import os
 import requests
 from datetime import datetime, timedelta
 from urllib.parse import quote
-import os
-from loguru import logger
 from pathlib import Path
+
+from loguru import logger
 
 current_dir = Path(os.getcwd())
 

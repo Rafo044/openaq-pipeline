@@ -1,12 +1,13 @@
+import os
+from datetime import datetime, timedelta
 from transform import normalize_measurement
 from response_openaq import get_response
 from validation_json import OpenAQResponse
 from send_to_postgres import insert_dict_to_postgres
-import os
+from leanage_logger import log_lineage
+
 from dotenv import load_dotenv
 from loguru import logger
-from leanage_logger import log_lineage
-from datetime import datetime, timedelta
 
 logger.add("logs/logs.log")
 load_dotenv()
@@ -49,7 +50,7 @@ def main():
                 target="Transform",
                 process="Transform data",
             )
-            normalized_data = normalize_measurement(response["results"][0])
+            normalized_data = normalize_measurement(validated.dict()["results"][0])
 
             log_lineage(
                 tool="Python",
