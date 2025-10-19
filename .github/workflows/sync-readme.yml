@@ -3,12 +3,15 @@ name: Sync README.md from docs/index.md
 on:
   push:
     branches: [main]
+    paths:
+      - "docs/index.md"
 
 permissions:
   contents: write
 
 jobs:
   sync:
+    if: ${{ github.actor != 'github-actions[bot]' && github.actor != 'github-actions' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -36,13 +39,13 @@ jobs:
           lines = []
           with open(index, "r", encoding="utf-8") as f:
               for line in f:
-                  # ./images və ya images ilə başlayan yolları ./docs/images ilə əvəz et
                   line = re.sub(r'\]\((?:\.\/)?images/', '](./docs/images/', line)
                   lines.append(line)
 
           with open(readme, "w", encoding="utf-8") as f:
               f.writelines(lines)
-          print("README.md updated from docs/index.md")
+
+          print("✅ README.md updated from docs/index.md (all lines processed)")
           PYCODE
 
       - name: Commit and push if changed
@@ -52,10 +55,12 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          CHANGED=$(git diff --name-only README.md)
-          if [ -n "$CHANGED" ]; then
+          # check if README.md content changed compared to HEAD
+          if ! git diff --quiet -- README.md; then
             git add README.md
-            git commit -m "Update README.md from docs/index.md"
+            # optional: include a tag in commit message to make it obvious it was auto-generated
+            git commit -m "chore: Sync README.md from docs/index.md [auto-sync]"
+            # use --force-with-lease only if you understand implications; normal push should be fine
             git push
             echo "Changes committed and pushed."
           else
