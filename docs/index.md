@@ -8,7 +8,6 @@ An end-to-end data pipeline for fetching, validating, and storing air quality da
 
 This project provides a complete data pipeline that collects air quality measurements from the OpenAQ REST API, validates the data using Pydantic models, and stores it in a PostgreSQL database. The pipeline includes data lineage tracking and visualization capabilities.
 
-<!-- MCP Server Usage Demo -->
 <video width="640" height="360" controls>
   <source src="./images/video.webm" type="video/webm">
   Your browser does not support the video tag.
