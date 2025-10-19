@@ -9,7 +9,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     env_file:
-      - ..env
+      - .env
     volumes:
       - ./pgdata:/var/lib/postgresql
     healthcheck:

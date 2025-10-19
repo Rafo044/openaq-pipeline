@@ -19,7 +19,7 @@ stop:
 	docker compose stop
 
 init:
-	sudo chmod +x init.sh
+	sudo chmod +x script/init.sh
 	./script/init.sh
 
 main:
@@ -38,5 +38,4 @@ run:
 	docker exec -it datalineage npm run dev
 
 test:
-	source "$(ENV_PATH)"/bin/activate.fish
-	pytest test_main.py
+	pytest tests/test_main.py
