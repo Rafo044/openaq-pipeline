@@ -1,4 +1,4 @@
-name: Deploy datalineage folder to GitHub Pages
+name: Deploy Multiple Sites to GitHub Pages
 
 on:
   push:
@@ -17,21 +17,39 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      # ----- Datalineage site -----
+      - name: Setup Node.js for Datalineage
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install dependencies (Datalineage)
         run: npm install
         working-directory: datalineage
 
-      - name: Build Vite project
+      - name: Build Vite project (Datalineage)
         run: npm run build
         working-directory: datalineage
 
-      - name: Deploy to GitHub Pages
+      # ----- MCDocs site -----
+      - name: Setup Node.js for MCDocs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (MCDocs)
+        run: npm install
+        working-directory: docs
+
+      - name: Build MCDocs site
+        run: npx mcdocs build
+        working-directory: docs
+
+      # ----- Deploy both sites -----
+      - name: Deploy both sites to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: datalineage/dist
+          publish_dir: |
+            datalineage/dist
+            docs/build
