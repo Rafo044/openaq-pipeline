@@ -1,13 +1,15 @@
 services:
   pgdata:
-    image: postgres:18
+    build:
+      context: ./pgdata
+      dockerfile: Dockerfile
     container_name: pgdata
     networks:
       - openaq
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     env_file:
-      - .env
+      - ..env
     volumes:
       - ./pgdata:/var/lib/postgresql
     healthcheck:
