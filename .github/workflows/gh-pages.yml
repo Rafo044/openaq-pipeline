@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ----- Datalineage (Vite, Node.js) -----
+      # ----- Datalineage (Node.js) -----
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -31,17 +31,19 @@ jobs:
         run: npm run build
         working-directory: datalineage
 
-      # ----- MCDocs (Python) -----
+      # ----- Docs (MkDocs, Python) -----
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install MCDocs
-        run: pip install mcdocs
+      - name: Install MkDocs and theme
+        run: |
+          pip install mkdocs==1.6.1
+          pip install mkdocs-bootswatch
 
-      - name: Build MCDocs site
-        run: mcdocs build
+      - name: Build MkDocs site
+        run: mkdocs build
         working-directory: docs
 
       # ----- Deploy both sites -----
@@ -51,4 +53,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: |
             datalineage/dist
-            docs/build
+            docs/site
