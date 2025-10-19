@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 .PHONY: up down logs start stop main
 include .env
 export
@@ -38,4 +39,4 @@ run:
 	docker exec -it datalineage npm run dev
 
 test:
-	pytest tests/test_main.py
+	source $(VENV_PATH) && pytest tests/test_main.py
