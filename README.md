@@ -1,154 +1,198 @@
+# OpenAQ Pipeline
+
+An end-to-end data pipeline for fetching, validating, and storing air quality data from the OpenAQ platform.
+
+![Pipeline Architecture](docs/images/pipeline.png)
+
+## Overview
+
+This project provides a complete data pipeline that collects air quality measurements from the OpenAQ REST API, validates the data using Pydantic models, and stores it in a PostgreSQL database. The pipeline includes data lineage tracking and visualization capabilities.
+
+<!-- MCP Server Usage Demo -->
+![MCP Server Demo](docs/images/mcp-demo.svg)
+
+## Features
+
+- **Data Collection**: Fetch air quality data from OpenAQ REST API
+- **Data Validation**: Validate incoming data using Pydantic models
+- **Data Storage**: Store validated data in PostgreSQL database
+- **Data Lineage**: Track data flow through the pipeline
+- **MCP Server**: Control pipeline operations via Model Context Protocol
+- **Visualization**: View data lineage with interactive web interface
+- **Docker Support**: Fully containerized deployment
+
+## Tech Stack
+
+- **Python 3.9+**: Core programming language
+- **Pydantic**: Data validation and modeling
+- **PostgreSQL**: Database for storing measurements
+- **Loguru**: Logging and monitoring
+- **FastMCP**: MCP server implementation
+- **Docker**: Containerization and deployment
+- **Pytest**: Testing framework
+
+## Project Structure
+
+```
+openaq-pipeline/
+├── parser/              # Main data processing module
+│   ├── main.py         # Pipeline entry point
+│   ├── response_openaq.py    # API client
+│   ├── validation_json.py    # Pydantic models
+│   ├── transform.py    # Data transformation
+│   ├── send_to_postgres.py   # Database operations
+│   └── leanage_logger.py     # Lineage tracking
+├── mcp/                # MCP server for pipeline control
+│   └── mcp_server.py   # FastMCP server implementation
+├── pgdata/             # PostgreSQL initialization
+├── datalineage/        # Data lineage visualization
+├── tests/              # Test suite
+└── docs/               # Documentation and images
+```
 
-Bu layihəmdə istədim ki end-to-end pipeline yaradım.Məlumatlar OPENAQ platformasından REST API ilə çəkilir
-daha sonra model validasiya olundur və databaseə göndərilir .
+## Quick Start
 
-İstifadə olunan Toollar:
+### Prerequisites
 
-Pydantic    - Model Validasiya
-Pytest      - Test
-Loguru      - Logging
-Postgresql  - Database
-Docker      - Deployment
+- Docker and Docker Compose
+- Python 3.9 or higher (for local development)
+- OpenAQ API key
 
-London şəhərinin hava kirliliyini ölçmək üçün istifadə edəciyik .
-Batch data aws dən yüklənir (bulk formasında)
-Real time isə yəni daha dəqiq micro batch data rest api dan alınır
-Asinxron data fərqli data mənbələrinə görə ayrılır .
-Hər mənbənin məlumatları bir database də fərqli schemada eyni adla saxlanılır
-Data Validasiyası (micro batch üçün ) pydanticlə aparılır
-Visualizasiya Metabaselə edilir .
+### Installation
 
-# Ölkə və şəhərlərin longitude və latitude tapmaq üçün website linki
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/openaq-pipeline.git
+cd openaq-pipeline
+```
 
-[Ölkə və şəhərlərin longitude və latitude tapmaq üçün website linki](latlong.net)
+2. Create a `.env` file with your configuration:
+```env
+OPENAQ_API_KEY=your_api_key
+POSTGRES_HOST=pgdata
+POSTGRES_PORT=5432
+POSTGRES_DB=openaq
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+SENSOR_ID=your_sensor_id
+START_DATE=2025-01-01
+START=0
+STOP=30
+STEP=1
+```
 
+3. Start the services:
+```bash
+make up
+```
 
-Open ap məlumatları haqqında detallı Məlumatlar
+4. Initialize the database:
+```bash
+make init
+```
 
-Ölçmələr (Measurements)
+5. Run the pipeline:
+```bash
+make main
+```
 
-Nələr var:
+## Usage
 
-Parametr: PM2.5, PM10, NO₂, O₃, CO, SO₂ və s.
+### Running the Pipeline
 
-Qiymət: konsentrasiyanın real ölçümü (µg/m³ və ya ppb).
+```bash
+# Start all containers
+make up
 
-Vahid: ölçmə vahidi.
+# Run the data pipeline
+make main
 
-Vaxt: timestamp, UTC.
+# View logs
+make logs
 
-Məntəqə: hansı stansiyadan gəldiyi.
+# Stop containers
+make stop
+```
 
-Vacibliyi:
+### Running Tests
 
-Hava keyfiyyətini real vaxt və tarixi olaraq izləməyə imkan verir.
+```bash
+make test
+```
 
-PM2.5 və NO₂ kimi zərərli parametrlər insan sağlamlığı üçün kritikdir.
+### Data Lineage Visualization
 
-Analitik istifadəsi:
+```bash
+# Start the lineage viewer
+make run
+```
 
-Trend analizi: hava keyfiyyətinin saatlıq/günlük dəyişimi.
+Then open your browser to `http://localhost:5173`
 
-Səbəb-nəticə araşdırması: yol trafikinin və sənaye fəaliyyəti ilə əlaqəsini yoxlamaq.
+## MCP Server
 
-Forecasting: ML modellərlə hava keyfiyyətini proqnozlaşdırmaq.
+The project includes an MCP (Model Context Protocol) server that allows AI assistants to control the pipeline.
 
-Son ölçmələr (Latest)
+### Available Tools
 
-Nələr var:
+- `command_start_all_containers`: Start all Docker containers
+- `command_run_all_tests`: Run the test suite
+- `permission_check`: Check permissions for operations
 
-Hər stansiya üçün ən son oxunan parametrlər.
+### Configuration
 
-Vacibliyi:
+Configure the MCP server in `mcp/config.json` and set permissions in your `.env` file:
 
-Real-time monitorinq və xəbərdarlıq sistemləri üçün.
+```env
+PERMISSION_DOCKER_CONTROL=true
+PERMISSION_POSTGRES_QUERY=true
+PERMISSION_REQUESTS=true
+```
 
-Analitik istifadəsi:
+## Development
 
-Dashboard-larda “hazır vəziyyət” göstərmək.
+### Install Dependencies
 
-Threshold-lar keçəndə alert göndərmək (SMS, email, Telegram).
+```bash
+pip install -e ".[dev]"
+```
 
-Məntəqələr / Stansiyalar (Locations)
+### Code Quality
 
-Nələr var:
+```bash
+# Format code
+black parser/ mcp/ tests/
 
-Stansiyanın adı, koordinatları, şəhər, ölkə, ölçən təşkilat, parametrlər.
+# Lint code
+ruff check parser/ mcp/ tests/
 
-Vacibliyi:
+# Type checking
+mypy parser/ mcp/
+```
 
-Coğrafi vizualizasiya üçün əsasdır.
+### Running Tests Locally
 
-Məlumatın mənbəyini doğrulamağa imkan verir.
+```bash
+pytest tests/ -v
+```
 
-Analitik istifadəsi:
+## Data Model
 
-Heatmap və xəritə vizualizasiyaları.
+The pipeline processes air quality measurements with the following key parameters:
 
-Müxtəlif bölgələr üzrə müqayisələr.
+- **PM2.5, PM10**: Particulate matter
+- **NO₂, O₃, CO, SO₂**: Gas pollutants
+- **Timestamp**: UTC time
+- **Location**: Sensor coordinates and metadata
 
-Ərazi üzrə trendlərin, hotspot-ların təhlili.
+## Contributing
 
-Parametrlər (Parameters)
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Nələr var:
+## License
 
-Hansı hava komponentləri ölçülür, təsviri, vahid.
+MIT License
 
-Vacibliyi:
+## Author
 
-Analitiklər üçün hansı məlumatların mövcud olduğunu anlamaq üçün.
-
-Analitik istifadəsi:
-
-Qlobal və regional hava keyfiyyəti indeksi (AQI) hesablaması.
-
-Parametrlər arasında korelyasiya analizi.
-
-Sensor / Alət / İstehsalçı
-
-Nələr var:
-
-Sensorun tipi, ölçdüyü parametrlər, istehsalçı, operator.
-
-Vacibliyi:
-
-Ölçmələrin etibarlılığını qiymətləndirmək.
-
-Analitik istifadəsi:
-
-Sensor keyfiyyəti və kalibrləmə effektlərini təhlil etmək.
-
-Məlumatın doğruluğunu artırmaq.
-
-Tarixi / Arxiv Məlumat
-
-Nələr var:
-
-Əvvəlki illərə aid bütün ölçmələr.
-
-Bulk formatda AWS S3 üzərindən yüklənə bilir.
-
-Vacibliyi:
-
-Uzunmüddətli trend analizi və tədqiqatlar üçün.
-
-Analitik istifadəsi:
-
-Seasonal pattern və dəyişikliklərin təhlili.
-
-İqlim dəyişikliyi və urban pollution tədqiqatları.
-
-Machine learning modelləri üçün təlim datası.
-
-Nümunə Analitik İşlər
-
-Dashboard / Real-time monitor: Son ölçmələri xəritədə və qrafikdə göstərmək.
-
-Trend analizi: PM2.5-nin aylıq, illik dəyişimi, pik saatlar.
-
-Korelasiya tədqiqatı: Hava keyfiyyəti vs. yol hərəkəti, sənaye fəaliyyəti.
-
-Forecasting & Alerts: Machine learning ilə gələcək hava keyfiyyətini proqnozlaşdırmaq.
-
-Health risk analysis: İnsan sağlamlığı üçün kritik günləri təyin etmək.
+Rafael Alikhanli - rafaelalikhanli@gmail.com
