@@ -1,61 +1,33 @@
-name: Sync README.md from docs/index.md
+name: Sync README to docs/index.md
 
 on:
   push:
-    branches: [ main ]
-
-permissions:
-  contents: write
+    branches:
+      - main
+    paths:
+      - README.md
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Copy docs/index.md to README.md
+      - name: Copy README.md to docs/index.md
         run: |
-          python <<'PYCODE'
-          import os, re
+          mkdir -p docs
+          cp README.md docs/index.md
 
-          index = "docs/index.md"
-          readme = "README.md"
-
-          if not os.path.exists(index):
-              print("docs/index.md not found, skipping.")
-              exit(0)
-
-          with open(index, "r", encoding="utf-8") as f:
-              content = f.read()
-
-          content_fixed = re.sub(r'\]\(\./images/', '](./docs/images/', content)
-
-          with open(readme, "w", encoding="utf-8") as f:
-              f.write(content_fixed)
-
-          print("README.md updated from docs/index.md")
-          PYCODE
-
-      - name: Commit and push if changed
-        shell: bash
+      - name: Commit and push changes
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
-          CHANGED=$(git diff --name-only README.md)
-          if [ -n "$CHANGED" ]; then
-            git add README.md
-            git commit -m "Update README.md from docs/index.md"
+          if ! git diff --quiet docs/index.md; then
+            git add docs/index.md
+            git commit -m "Sync docs/index.md with README.md"
             git push
-            echo "Changes committed and pushed."
           else
             echo "No changes to commit."
           fi
