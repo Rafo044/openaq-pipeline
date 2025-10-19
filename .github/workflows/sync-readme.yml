@@ -1,4 +1,4 @@
-name: Two-way Sync README.md and docs/index.md
+name: Sync README.md from docs/index.md
 
 on:
   push:
@@ -20,61 +20,28 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Run sync script
+      - name: Copy docs/index.md to README.md
         run: |
           python <<'PYCODE'
-          import os, re, subprocess
+          import os, re
 
           INDEX = "docs/index.md"
           README = "README.md"
 
-          if not os.path.exists(INDEX) and not os.path.exists(README):
-              print("Both README.md and docs/index.md are missing. Exiting.")
+          if not os.path.exists(INDEX):
+              print("docs/index.md not found. Exiting.")
               exit(0)
 
-          def last_modified(file):
-              try:
-                  t = subprocess.check_output(
-                      ["git", "log", "-1", "--format=%ct", "--", file],
-                      text=True
-                  ).strip()
-                  return int(t) if t else 0
-              except subprocess.CalledProcessError:
-                  return 0
+          with open(INDEX, "r", encoding="utf-8") as f:
+              content = f.read()
 
-          index_time = last_modified(INDEX)
-          readme_time = last_modified(README)
+          # Adjust image paths for GitHub rendering
+          content_fixed = re.sub(r'\]\(\./images/', '](./docs/images/', content)
 
-          print(f"docs/index.md last modified: {index_time}")
-          print(f"README.md last modified: {readme_time}")
+          with open(README, "w", encoding="utf-8") as f:
+              f.write(content_fixed)
 
-          if index_time > readme_time:
-              print("docs/index.md is newer -> updating README.md")
-
-              with open(INDEX, "r", encoding="utf-8") as f:
-                  content = f.read()
-
-              # Fix relative image paths for GitHub
-              content_fixed = re.sub(r'\]\(\./images/', '](./docs/images/', content)
-
-              with open(README, "w", encoding="utf-8") as f:
-                  f.write(content_fixed)
-
-          elif readme_time > index_time:
-              print("README.md is newer -> updating docs/index.md")
-
-              with open(README, "r", encoding="utf-8") as f:
-                  content = f.read()
-
-              # Revert image paths for MkDocs
-              content_fixed = re.sub(r'\]\(\./docs/images/', '](./images/', content)
-
-              os.makedirs(os.path.dirname(INDEX), exist_ok=True)
-              with open(INDEX, "w", encoding="utf-8") as f:
-                  f.write(content_fixed)
-          else:
-              print("Files are already in sync.")
-              exit(0)
+          print("README.md updated from docs/index.md")
           PYCODE
 
       - name: Commit and push if changed
@@ -82,10 +49,10 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          if ! git diff --quiet README.md docs/index.md; then
-            git add README.md docs/index.md
-            git commit -m "Sync README.md and docs/index.md"
+          if ! git diff --quiet README.md; then
+            git add README.md
+            git commit -m "Update README.md from docs/index.md"
             git push
-            echo "Changes committed and pushed."
+            echo "Changes pushed to repository."
           else
             echo "No changes to commit."
